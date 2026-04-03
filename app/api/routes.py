@@ -26,3 +26,21 @@ def create_goal(payload: dict):
         "tasks": result.get("tasks", []),
         "research": result.get("research", {})
     }
+    
+from app.agents.reflection_agent import reflection_agent
+from app.agents.execution_agent import execution_agent
+
+
+@router.post("/analyze")
+def analyze():
+    state = {
+        "tasks": []
+    }
+
+    state = reflection_agent(state)
+    state = execution_agent(state)
+
+    return {
+        "message": "Re-analysis complete",
+        "new_tasks": state.get("tasks", [])
+    }
