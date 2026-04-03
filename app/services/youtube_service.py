@@ -2,6 +2,7 @@ import grpc
 from concurrent import futures
 
 from app.services.youtube_helper import fetch_trending_videos
+from app.services.youtube_helper import fetch_channel_analytics
 import app.services.youtube_pb2 as pb2
 import app.services.youtube_pb2_grpc as pb2_grpc
 
@@ -24,13 +25,22 @@ class YouTubeService(pb2_grpc.YouTubeServiceServicer):
             return pb2.TrendingResponse()
 
     def GetChannelAnalytics(self, request, context):
-        return pb2.AnalyticsResponse(
-            growth="increasing",
-            top_videos=[
-                "AI tools video",
-                "Automation tutorial"
-            ]
-        )
+        try:
+            channel_id = request.channel_id
+
+            data = fetch_channel_analytics(channel_id)
+
+            return pb2.AnalyticsResponse(
+                growth=f"Subscribers: {data['subscriber_count']}",
+                top_videos=[
+                    video["title"] for video in data["top_videos"]
+                ]
+            )
+
+        except Exception as e:
+            context.set_details(str(e))
+            context.set_code(grpc.StatusCode.INTERNAL)
+            return pb2.AnalyticsResponse()
 
 
 def serve():
