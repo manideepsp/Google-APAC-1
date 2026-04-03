@@ -8,7 +8,9 @@ def run():
     }
 
     result = graph.invoke(state)
-    print(result["research"])
+
+    print("FINAL STATE:")
+    print(result)
 
 if __name__ == "__main__":
     run()

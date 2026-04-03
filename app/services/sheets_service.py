@@ -8,15 +8,20 @@ from app.services import sheets_pb2, sheets_pb2_grpc
 class SheetsService(sheets_pb2_grpc.SheetsServiceServicer):
 
     def AddTask(self, request, context):
+        print("Received task:", request.task)
         sheet = get_sheet()
         worksheet = sheet.worksheet("Tasks")
 
-        worksheet.append_row([
+        print("Appending:", request.task)
+
+        worksheet.append_rows([
             request.task,
             request.status,
             request.priority,
             request.day
-        ])
+        ], value_input_option="RAW")
+
+        print("Row appended")
 
         return sheets_pb2.TaskResponse(message="Task added")
 
