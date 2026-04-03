@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package sheets;
+
+service SheetsService {
+  rpc AddTask (TaskRequest) returns (TaskResponse);
+}
+
+message TaskRequest {
+  string task = 1;
+  string status = 2;
+  string priority = 3;
+  string day = 4;
+}
+
+message TaskResponse {
+  string message = 1;
+}
