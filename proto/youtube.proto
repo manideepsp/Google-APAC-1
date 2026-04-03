@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package youtube;
+
+service YouTubeService {
+  rpc GetTrending (Empty) returns (TrendingResponse);
+  rpc GetChannelAnalytics (ChannelRequest) returns (AnalyticsResponse);
+}
+
+message Empty {}
+
+message ChannelRequest {
+  string channel_id = 1;
+}
+
+message TrendingResponse {
+  repeated string titles = 1;
+  repeated string topics = 2;
+}
+
+message AnalyticsResponse {
+  string growth = 1;
+  repeated string top_videos = 2;
+}

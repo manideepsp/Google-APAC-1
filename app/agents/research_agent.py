@@ -1,23 +1,11 @@
-from app.core.llm import get_llm
+from app.services.youtube_client import get_trending
 
 def research_agent(state: dict):
-    llm = get_llm()
-    
-    goal = state["goal"]
+    res = get_trending()
 
-    prompt = f"""
-    You are a YouTube growth expert.
+    state["research"] = {
+        "titles": list(res.titles),
+        "topics": list(res.topics)
+    }
 
-    Analyze this goal:
-    {goal}
-
-    Provide:
-    - trending topics
-    - content ideas
-    - audience insights
-    """
-
-    response = llm.invoke(prompt)
-
-    state["research"] = response.content
     return state
