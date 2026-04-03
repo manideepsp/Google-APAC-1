@@ -1,5 +1,6 @@
 from app.core.llm import get_llm
-import json
+from app.core.utils.json_parser import extract_json
+
 
 
 def planning_agent(state: dict):
@@ -29,10 +30,7 @@ def planning_agent(state: dict):
 
     response = llm.invoke(prompt)
 
-    try:
-        tasks = json.loads(response.content)
-    except Exception:
-        tasks = []
+    tasks = extract_json(response.content)
 
     state["tasks"] = tasks
     return state

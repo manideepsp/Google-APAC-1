@@ -14,12 +14,12 @@ class SheetsService(sheets_pb2_grpc.SheetsServiceServicer):
 
         print("Appending:", request.task)
 
-        worksheet.append_rows([
+        worksheet.append_row([
             request.task,
             request.status,
             request.priority,
             request.day
-        ], value_input_option="RAW")
+        ])
 
         print("Row appended")
 

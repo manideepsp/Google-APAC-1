@@ -1,23 +1,27 @@
 import grpc
 from concurrent import futures
 
+from app.services.youtube_helper import fetch_trending_videos
 import app.services.youtube_pb2 as pb2
 import app.services.youtube_pb2_grpc as pb2_grpc
 
 
 class YouTubeService(pb2_grpc.YouTubeServiceServicer):
 
+
     def GetTrending(self, request, context):
-        return pb2.TrendingResponse(
-            titles=[
-                "Top 5 AI Tools in 2026",
-                "ChatGPT vs Gemini",
-            ],
-            topics=[
-                "AI tools",
-                "LLMs",
-            ]
-        )
+        try:
+            data = fetch_trending_videos()
+
+            return pb2.TrendingResponse(
+                titles=data["titles"],
+                topics=data["channels"]  # using channels as topics proxy
+            )
+
+        except Exception as e:
+            context.set_details(str(e))
+            context.set_code(grpc.StatusCode.INTERNAL)
+            return pb2.TrendingResponse()
 
     def GetChannelAnalytics(self, request, context):
         return pb2.AnalyticsResponse(
