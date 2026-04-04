@@ -39,12 +39,23 @@ class SheetsServiceStub(object):
                 request_serializer=sheets__pb2.TaskRequest.SerializeToString,
                 response_deserializer=sheets__pb2.TaskResponse.FromString,
                 _registered_method=True)
+        self.ClearTasks = channel.unary_unary(
+                '/sheets.SheetsService/ClearTasks',
+                request_serializer=sheets__pb2.Empty.SerializeToString,
+                response_deserializer=sheets__pb2.Empty.FromString,
+                _registered_method=True)
 
 
 class SheetsServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def AddTask(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ClearTasks(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -57,6 +68,11 @@ def add_SheetsServiceServicer_to_server(servicer, server):
                     servicer.AddTask,
                     request_deserializer=sheets__pb2.TaskRequest.FromString,
                     response_serializer=sheets__pb2.TaskResponse.SerializeToString,
+            ),
+            'ClearTasks': grpc.unary_unary_rpc_method_handler(
+                    servicer.ClearTasks,
+                    request_deserializer=sheets__pb2.Empty.FromString,
+                    response_serializer=sheets__pb2.Empty.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -86,6 +102,33 @@ class SheetsService(object):
             '/sheets.SheetsService/AddTask',
             sheets__pb2.TaskRequest.SerializeToString,
             sheets__pb2.TaskResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ClearTasks(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/sheets.SheetsService/ClearTasks',
+            sheets__pb2.Empty.SerializeToString,
+            sheets__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,

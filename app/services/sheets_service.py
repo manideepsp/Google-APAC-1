@@ -4,6 +4,9 @@ from concurrent import futures
 from app.services.sheets_helper import get_sheet
 from app.services import sheets_pb2, sheets_pb2_grpc
 
+TaskResponse = getattr(sheets_pb2, "TaskResponse")
+Empty = getattr(sheets_pb2, "Empty")
+
 
 class SheetsService(sheets_pb2_grpc.SheetsServiceServicer):
 
@@ -23,7 +26,13 @@ class SheetsService(sheets_pb2_grpc.SheetsServiceServicer):
 
         print("Row appended")
 
-        return sheets_pb2.TaskResponse(message="Task added")
+        return TaskResponse(message="Task added")
+
+    def ClearTasks(self, request, context):
+        sheet = get_sheet()
+        worksheet = sheet.worksheet("Tasks")
+        worksheet.batch_clear(["A:D"])
+        return Empty()
 
 
 def serve():

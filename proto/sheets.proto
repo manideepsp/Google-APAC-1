@@ -4,7 +4,10 @@ package sheets;
 
 service SheetsService {
   rpc AddTask (TaskRequest) returns (TaskResponse);
+  rpc ClearTasks (Empty) returns (Empty);
 }
+
+message Empty {}
 
 message TaskRequest {
   string task = 1;

@@ -1,4 +1,5 @@
-from app.services.sheets_client import add_task
+from app.db.sqlite import insert_task
+from app.services.sheets_sync import sync_tasks_to_sheets
 
 
 def execution_agent(state: dict):
@@ -6,13 +7,18 @@ def execution_agent(state: dict):
 
     for task in tasks:
         try:
-            add_task(
+            insert_task(
                 task=task.get("task", ""),
-                status="Pending",
                 priority=task.get("priority", "Medium"),
                 day=task.get("day", "Day 1")
             )
+
         except Exception as e:
-            print(f"Error adding task: {e}")
+            print(f"Error inserting task in DB: {e}")
+
+    try:
+        sync_tasks_to_sheets()
+    except Exception as e:
+        print(f"Error syncing tasks to sheets: {e}")
 
     return state

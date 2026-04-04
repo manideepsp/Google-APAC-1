@@ -1,5 +1,6 @@
 import grpc
 from app.services import sheets_pb2, sheets_pb2_grpc
+from app.services.sheets_pb2 import Empty
 
 
 def get_client():
@@ -18,3 +19,8 @@ def add_task(task, status, priority, day):
             day=day
         )
     )
+
+
+def clear_tasks():
+    client = get_client()
+    return client.ClearTasks(Empty())
