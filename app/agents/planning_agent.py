@@ -1,5 +1,6 @@
 from app.core.llm import get_llm
 from app.core.utils.json_parser import extract_json
+import json
 
 
 
@@ -39,9 +40,12 @@ def planning_agent(state: dict):
     """
 
     response = llm.invoke(prompt)
+    raw_content = response.content
+    if not isinstance(raw_content, str):
+      raw_content = json.dumps(raw_content)
 
     try:
-        tasks = extract_json(response.content)
+      tasks = extract_json(raw_content)
     except Exception:
         tasks = []
 

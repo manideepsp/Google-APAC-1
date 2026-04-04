@@ -6,6 +6,9 @@ from app.services.youtube_helper import fetch_channel_analytics
 import app.services.youtube_pb2 as pb2
 import app.services.youtube_pb2_grpc as pb2_grpc
 
+TrendingResponse = getattr(pb2, "TrendingResponse")
+AnalyticsResponse = getattr(pb2, "AnalyticsResponse")
+
 
 class YouTubeService(pb2_grpc.YouTubeServiceServicer):
 
@@ -14,7 +17,7 @@ class YouTubeService(pb2_grpc.YouTubeServiceServicer):
         try:
             data = fetch_trending_videos()
 
-            return pb2.TrendingResponse(
+            return TrendingResponse(
                 titles=data["titles"],
                 topics=data["channels"]  # using channels as topics proxy
             )
@@ -22,7 +25,7 @@ class YouTubeService(pb2_grpc.YouTubeServiceServicer):
         except Exception as e:
             context.set_details(str(e))
             context.set_code(grpc.StatusCode.INTERNAL)
-            return pb2.TrendingResponse()
+            return TrendingResponse()
 
     def GetChannelAnalytics(self, request, context):
         try:
@@ -30,7 +33,7 @@ class YouTubeService(pb2_grpc.YouTubeServiceServicer):
 
             data = fetch_channel_analytics(channel_id)
 
-            return pb2.AnalyticsResponse(
+            return AnalyticsResponse(
                 growth=f"Subscribers: {data['subscriber_count']}",
                 top_videos=[
                     video["title"] for video in data["top_videos"]
@@ -40,7 +43,7 @@ class YouTubeService(pb2_grpc.YouTubeServiceServicer):
         except Exception as e:
             context.set_details(str(e))
             context.set_code(grpc.StatusCode.INTERNAL)
-            return pb2.AnalyticsResponse()
+            return AnalyticsResponse()
 
 
 def serve():

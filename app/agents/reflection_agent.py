@@ -1,7 +1,7 @@
 from app.core.llm import get_llm
 from app.services.youtube_client import get_channel_analytics
 from app.services.kpi_builder import build_kpis
-from app.db.sqlite import get_active_tasks, replace_tasks
+from app.db.sqlite import get_active_tasks_by_user, replace_tasks
 from app.services.sheets_sync import sync_tasks_to_sheets
 
 
@@ -29,6 +29,7 @@ def extract_json(text: str):
 
 def reflection_agent(state: dict):
     llm = get_llm()
+    user_id = state.get("user_id")
 
     # 🔹 Get channel ID (static if not passed)
     channel_id = state.get("channel_id")
@@ -54,7 +55,7 @@ def reflection_agent(state: dict):
         analytics_data=analytics_data
     )
 
-    current_tasks = get_active_tasks()
+    current_tasks = get_active_tasks_by_user(user_id)
 
     # 🔹 LLM reasoning
     prompt = f"""
@@ -94,8 +95,8 @@ def reflection_agent(state: dict):
         new_tasks = []
 
     if new_tasks:
-        replace_tasks(new_tasks)
-        sync_tasks_to_sheets()
+        replace_tasks(new_tasks, user_id=user_id)
+        sync_tasks_to_sheets(user_id=user_id)
 
     state["tasks"] = new_tasks
     return state

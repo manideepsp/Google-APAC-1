@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Strategy Console</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            boxShadow: {
+              soft: "0 10px 35px rgba(0,0,0,0.45)",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="min-h-screen antialiased">
+    <div class="bg-orb orb-a"></div>
+    <div class="bg-orb orb-b"></div>
+
+    <div class="mx-auto max-w-7xl px-4 py-6 md:px-8">
+      <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p class="eyebrow">AI OPERATIONS</p>
+          <h1 class="text-2xl font-semibold tracking-tight md:text-3xl">Strategy Console</h1>
+          <p class="text-sm text-secondary">Goal to execution with lifecycle-safe task tracking.</p>
+        </div>
+
+        <div class="action-cluster">
+          <span id="userBadge" class="badge">Guest</span>
+          <button id="btnGenerate" class="action-btn primary" title="Create initial plan">Generate Strategy</button>
+          <button id="btnAnalyze" class="action-btn" title="Improve based on performance">Analyze</button>
+          <button id="btnRefresh" class="action-btn" title="Reload latest data">Refresh</button>
+          <button id="btnLogout" class="action-btn" title="Sign out">Logout</button>
+        </div>
+      </header>
+
+      <main class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <section class="panel lg:col-span-4">
+          <div class="panel-head">
+            <h2>Goal Builder</h2>
+            <span id="chatState" class="badge">Ready</span>
+          </div>
+
+          <div id="chatThread" class="chat-thread"></div>
+
+          <form id="chatForm" class="chat-form" autocomplete="off">
+            <input id="chatInput" type="text" placeholder="Type your answer..." required />
+            <button type="submit">Send</button>
+          </form>
+        </section>
+
+        <section class="panel lg:col-span-8">
+          <div class="panel-head mb-3">
+            <div class="tabs" id="tabs">
+              <button class="tab is-active" data-tab="tasks">Tasks</button>
+              <button class="tab" data-tab="analytics">Analytics</button>
+              <button class="tab" data-tab="ideas">Ideas</button>
+              <button class="tab" data-tab="history">History</button>
+            </div>
+            <button id="btnSaveChanges" class="save-btn hidden">Save Changes</button>
+          </div>
+
+          <div id="panel-tasks" class="tab-panel"></div>
+          <div id="panel-analytics" class="tab-panel hidden"></div>
+          <div id="panel-ideas" class="tab-panel hidden"></div>
+          <div id="panel-history" class="tab-panel hidden"></div>
+        </section>
+      </main>
+    </div>
+
+    <div id="processingOverlay" class="overlay hidden" aria-live="polite">
+      <div class="overlay-card">
+        <p class="eyebrow">Processing</p>
+        <h3 class="mb-3 text-xl font-semibold">Building your strategy</h3>
+        <div id="processingFeed" class="processing-feed"></div>
+      </div>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

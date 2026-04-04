@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register | AI Strategy Console</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./auth.css" />
+  </head>
+  <body>
+    <section class="auth-card">
+      <h1>Create Account</h1>
+      <p class="muted">Basic account setup with salted+hashed passwords.</p>
+
+      <form id="registerForm" autocomplete="off">
+        <label for="email">Email</label>
+        <input id="email" type="email" required />
+
+        <label for="password">Password</label>
+        <input id="password" type="password" minlength="8" required />
+
+        <label for="confirmPassword">Confirm Password</label>
+        <input id="confirmPassword" type="password" minlength="8" required />
+
+        <button type="submit">Register</button>
+      </form>
+
+      <div class="actions">
+        <a href="/login.html">Back to login</a>
+        <span></span>
+      </div>
+
+      <div id="message" class="message"></div>
+    </section>
+
+    <script type="module" src="./auth.js"></script>
+  </body>
+</html>

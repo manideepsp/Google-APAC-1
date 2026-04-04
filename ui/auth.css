@@ -1,0 +1,102 @@
+:root {
+  --background: #000000;
+  --surface: #0a0a0a;
+  --card: #111111;
+  --border: #1f1f1f;
+  --primary: #6366f1;
+  --accent: #22c55e;
+  --text-main: #e5e7eb;
+  --text-secondary: #9ca3af;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Space Grotesk", sans-serif;
+  color: var(--text-main);
+  background:
+    radial-gradient(800px 500px at 10% -10%, rgba(99, 102, 241, 0.15), transparent),
+    radial-gradient(700px 420px at 90% -10%, rgba(34, 197, 94, 0.08), transparent),
+    var(--background);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.auth-card {
+  width: min(460px, 100%);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 14%), var(--surface);
+  padding: 20px;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+}
+
+h1 { margin: 0 0 6px; }
+
+.muted {
+  margin: 0 0 14px;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+}
+
+form {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+label {
+  font-size: 0.88rem;
+  color: #d1d5db;
+}
+
+input {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: #0f0f0f;
+  color: var(--text-main);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+button {
+  border: 1px solid rgba(99, 102, 241, 0.65);
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.38), rgba(99, 102, 241, 0.2));
+  color: #e0e7ff;
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+a { color: #a5b4fc; }
+
+.message {
+  margin-top: 10px;
+  min-height: 1.2rem;
+  color: #cbd5e1;
+  font-size: 0.88rem;
+}
+
+.message.error { color: #fca5a5; }
+.message.success { color: #86efac; }
+
+.token-box {
+  margin-top: 8px;
+  border: 1px dashed #374151;
+  background: rgba(17, 24, 39, 0.45);
+  border-radius: 8px;
+  padding: 8px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.8rem;
+  word-break: break-all;
+}

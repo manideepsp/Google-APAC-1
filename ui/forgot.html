@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Forgot Password | AI Strategy Console</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./auth.css" />
+  </head>
+  <body>
+    <section class="auth-card">
+      <h1>Forgot Password</h1>
+      <p class="muted">Request a reset token and set a new password.</p>
+
+      <form id="forgotForm" autocomplete="off">
+        <label for="email">Email</label>
+        <input id="email" type="email" required />
+        <button type="submit">Generate Reset Token</button>
+      </form>
+
+      <div id="resetTokenBox" class="token-box">Token will appear here after request.</div>
+
+      <form id="resetForm" autocomplete="off">
+        <label for="resetToken">Reset Token</label>
+        <input id="resetToken" type="text" required />
+
+        <label for="newPassword">New Password</label>
+        <input id="newPassword" type="password" minlength="8" required />
+
+        <button type="submit">Reset Password</button>
+      </form>
+
+      <div class="actions">
+        <a href="/login.html">Back to login</a>
+        <span></span>
+      </div>
+
+      <div id="message" class="message"></div>
+    </section>
+
+    <script type="module" src="./auth.js"></script>
+  </body>
+</html>
