@@ -25,12 +25,11 @@ from app.db.sqlite import (
     update_task_status,
     update_user_password_hash,
 )
-from app.graph.workflow import build_graph
+from app.adk.ops_agent import build_ops_agent
+from app.adk.workflow_runner import run_goal_workflow_adk
 from app.services.sheets_sync import sync_tasks_to_sheets
 
 router = APIRouter()
-
-graph = build_graph()
 SESSION_TTL_DAYS = 7
 RESET_TTL_MINUTES = 30
 
@@ -176,7 +175,10 @@ def create_goal(payload: dict, user=Depends(require_user)):
         "user_id": user["id"],
     }
 
-    result = graph.invoke(state)
+    try:
+        result = run_goal_workflow_adk(state)
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"ADK workflow failed: {exc}")
 
     return {
         "message": "Workflow executed",
@@ -194,7 +196,10 @@ def analyze(payload: dict, user=Depends(require_user)):
         "user_id": user["id"],
     }
 
-    state = reflection_agent(state)
+    try:
+        state = reflection_agent(state)
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"ADK reflection failed: {exc}")
 
     return {
         "message": "Re-analysis complete",
@@ -245,4 +250,14 @@ def get_tasks(user=Depends(require_user)):
 def get_tasks_history(user=Depends(require_user)):
     return {
         "tasks": get_all_tasks_by_user(user["id"])
+    }
+
+
+@router.get("/ops/adk/agent")
+def get_adk_agent_info(user=Depends(require_user)):
+    agent = build_ops_agent()
+    return {
+        "name": agent.name,
+        "model": agent.model,
+        "tool_count": len(agent.tools),
     }

@@ -1,12 +1,11 @@
 from app.services.youtube_client import get_trending
 from app.services.youtube_helper import fetch_multiple_channel_analytics
-from app.core.llm import get_llm
+from app.adk.workflow_agents import summarize_research_with_adk
 from app.services.kpi_builder import build_kpis
 from app.services.websearch_helper import search_web
 
 
 def research_agent(state: dict):
-    llm = get_llm()
     goal = state.get("goal", "")
 
     # 1. Fetch trending via gRPC
@@ -47,44 +46,13 @@ def research_agent(state: dict):
         analytics_data=analytics_data
     )
 
-    # 5. Prepare summary input
-    summary_input = f"""
-    You are a YouTube growth strategist.
-
-    Goal:
-    {goal}
-
-    Trending YouTube Titles:
-    {titles}
-
-    Channel Performance Insights:
-    {analytics_data}
-
-    Web Insights (latest trends & ideas):
-    {web_insights}
-
-    KPIs:
-    {kpis}
-
-     Analyze deeply and provide:
-
-     1. Emerging Trends:
-         - What topics are rising and why?
-
-     2. Winning Patterns:
-         - Common traits among high-performing content
-
-     3. Strategic Recommendations:
-         - What exact content direction should be followed?
-
-     4. Content Opportunities:
-         - Specific video ideas aligned with goal
-
-     Be concise, actionable, and data-driven.
-    """
-
-    # 6. LLM synthesis
-    response = llm.invoke(summary_input)
+    insights = summarize_research_with_adk(
+        goal=goal,
+        titles=titles,
+        analytics_data=analytics_data,
+        web_insights=web_insights,
+        kpis=kpis,
+    )
 
     state["research"] = {
         "goal": goal,
@@ -93,7 +61,7 @@ def research_agent(state: dict):
         "analytics": analytics_data,
         "web_insights": web_insights,
         "kpis": kpis,
-        "insights": response.content
+        "insights": insights
     }
 
     return state
