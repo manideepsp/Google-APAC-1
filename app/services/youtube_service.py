@@ -1,5 +1,6 @@
 import grpc
 from concurrent import futures
+import os
 
 from app.services.youtube_helper import fetch_trending_videos
 from app.services.youtube_helper import fetch_channel_analytics
@@ -47,13 +48,14 @@ class YouTubeService(pb2_grpc.YouTubeServiceServicer):
 
 
 def serve():
+    port = int(str(os.getenv("YOUTUBE_GRPC_PORT", "50051")).strip() or "50051")
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     pb2_grpc.add_YouTubeServiceServicer_to_server(YouTubeService(), server)
     
-    server.add_insecure_port("[::]:50051")
+    server.add_insecure_port(f"[::]:{port}")
     server.start()
     
-    print("YouTube gRPC server running on port 50051")
+    print(f"YouTube gRPC server running on port {port}")
     server.wait_for_termination()
 
 

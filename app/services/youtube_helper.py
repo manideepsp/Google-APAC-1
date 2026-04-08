@@ -86,11 +86,12 @@ def fetch_channel_analytics(channel_id: str, max_results=5):
 
     # 1. Channel stats
     channel_res = youtube.channels().list(
-        part="statistics",
+        part="snippet,statistics",
         id=channel_id
     ).execute()
 
     stats = channel_res["items"][0]["statistics"]
+    channel_title = channel_res["items"][0].get("snippet", {}).get("title", "")
 
     subscriber_count = stats.get("subscriberCount", "0")
     video_count = stats.get("videoCount", "0")
@@ -124,16 +125,25 @@ def fetch_channel_analytics(channel_id: str, max_results=5):
     videos = []
 
     for item in video_res["items"]:
+        video_id = item.get("id", "")
+        item_channel_id = item["snippet"].get("channelId", channel_id)
         videos.append({
             "title": item["snippet"]["title"],
             "views": int(item["statistics"].get("viewCount", 0)),
-            "likes": int(item["statistics"].get("likeCount", 0))
+            "likes": int(item["statistics"].get("likeCount", 0)),
+            "video_id": video_id,
+            "video_url": f"https://www.youtube.com/watch?v={video_id}" if video_id else "",
+            "channel_id": item_channel_id,
+            "channel_url": f"https://www.youtube.com/channel/{item_channel_id}" if item_channel_id else "",
         })
 
     # Sort by views
     videos = sorted(videos, key=lambda x: x["views"], reverse=True)
 
     result = {
+        "channel_id": channel_id,
+        "channel_title": channel_title,
+        "channel_url": f"https://www.youtube.com/channel/{channel_id}",
         "subscriber_count": subscriber_count,
         "video_count": video_count,
         "top_videos": videos[:3]

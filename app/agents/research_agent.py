@@ -37,6 +37,8 @@ def research_agent(state: dict):
             {
                 "title": item.get("title", ""),
                 "ideas": item.get("key_ideas", []),
+                "url": item.get("url", ""),
+                "summary": item.get("summary", ""),
             }
         )
 

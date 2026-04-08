@@ -2,6 +2,7 @@ import signal
 import subprocess
 import sys
 import time
+import os
 from dataclasses import dataclass
 
 
@@ -23,9 +24,9 @@ SERVICES = [
             "uvicorn",
             "app.main:app",
             "--host",
-            "127.0.0.1",
+            os.getenv("APP_HOST") or ("0.0.0.0" if os.getenv("K_SERVICE") else "127.0.0.1"),
             "--port",
-            "8000",
+            str(os.getenv("PORT") or os.getenv("APP_PORT") or "8000"),
         ],
     ),
 ]

@@ -10,14 +10,20 @@ def extract_json(content: str):
     if not content:
         return None
 
+    # Strip common markdown fences when models wrap JSON in ```json blocks.
+    normalized = content.strip()
+    if normalized.startswith("```"):
+        normalized = re.sub(r"^```(?:json)?\s*", "", normalized, flags=re.IGNORECASE)
+        normalized = re.sub(r"\s*```$", "", normalized)
+
     # Try direct parse first
     try:
-        return json.loads(content)
+        return json.loads(normalized)
     except Exception:
         pass
 
     # Extract JSON block using regex
-    match = re.search(r"(\[.*\]|\{.*\})", content, re.DOTALL)
+    match = re.search(r"(\[.*\]|\{.*\})", normalized, re.DOTALL)
 
     if match:
         json_str = match.group(0)
@@ -25,7 +31,6 @@ def extract_json(content: str):
         try:
             return json.loads(json_str)
         except Exception:
-            print("❌ JSON extraction failed after regex")
+            return None
 
-    print("❌ No valid JSON found")
     return None

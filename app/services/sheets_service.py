@@ -1,5 +1,6 @@
 import grpc
 from concurrent import futures
+import os
 
 from app.services.sheets_helper import get_sheet
 from app.services import sheets_pb2, sheets_pb2_grpc
@@ -41,10 +42,11 @@ def serve():
         SheetsService(), server
     )
 
-    server.add_insecure_port("[::]:50052")
+    port = int(str(os.getenv("SHEETS_GRPC_PORT", "50052")).strip() or "50052")
+    server.add_insecure_port(f"[::]:{port}")
     server.start()
 
-    print("Sheets gRPC running on 50052")
+    print(f"Google Sheets gRPC server running on port {port}")
     server.wait_for_termination()
 
 

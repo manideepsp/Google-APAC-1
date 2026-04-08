@@ -1,5 +1,61 @@
 # Google-APAC-1
 
+## Vertex AI Setup (Gemini 2.5 Flash)
+
+The project uses Vertex AI for Gemini model calls with `gemini-2.5-flash`.
+
+The app auto-detects Vertex project/auth in this order:
+
+1. `GOOGLE_CLOUD_PROJECT` or `VERTEX_PROJECT_ID`
+2. `GOOGLE_APPLICATION_CREDENTIALS`
+3. `keys/credentials.json` in this repo (uses `project_id` from the file)
+
+Set environment variables:
+
+```powershell
+$env:GOOGLE_CLOUD_PROJECT="YOUR_PROJECT_ID"
+$env:GOOGLE_CLOUD_LOCATION="us-central1"
+```
+
+If you use a service-account key file:
+
+```powershell
+$env:GOOGLE_APPLICATION_CREDENTIALS="E:\GITHUB\APAC\Google-APAC-1\keys\credentials.json"
+```
+
+Authenticate with Application Default Credentials:
+
+```powershell
+gcloud auth application-default login
+```
+
+Optional aliases supported by app code:
+
+- `VERTEX_PROJECT_ID`
+- `VERTEX_LOCATION`
+
+Note: API-key LLM auth is not used by this app path anymore; Vertex credentials are required.
+
+## AlloyDB Task Memory (Generation-Aware)
+
+The app can store generated tasks in AlloyDB and retrieve relevant historical tasks before generating the next set.
+
+Set one of these variables to enable AlloyDB memory:
+
+```powershell
+$env:ALLOYDB_DSN="postgresql://USER:PASSWORD@HOST:5432/DBNAME?sslmode=require"
+# or
+$env:ALLOYDB_URI="postgresql://USER:PASSWORD@HOST:5432/DBNAME?sslmode=require"
+```
+
+Behavior:
+
+- Each planning/reflection generation stores tasks with metadata (`goal`, `goal_params`, `run_id`, `channel_id`, `generation_number`).
+- Before each generation, related tasks are fetched from AlloyDB using full-text + trigram relevance.
+- Retrieved memory is injected into generation prompts to improve continuity and reduce duplicates.
+
+If AlloyDB is not configured, workflow continues with existing SQLite behavior.
+
 ## Run Entire App With One Command
 
 Start all required services in one terminal (YouTube gRPC, Sheets gRPC, and FastAPI UI/API):

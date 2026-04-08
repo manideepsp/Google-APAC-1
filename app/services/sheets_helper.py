@@ -1,4 +1,7 @@
+import os
+
 import gspread
+import google.auth
 from google.oauth2.service_account import Credentials
 
 
@@ -8,10 +11,15 @@ def get_client():
         "https://www.googleapis.com/auth/drive"
     ]
 
-    creds = Credentials.from_service_account_file(
-        "keys/credentials.json",
-        scopes=scopes
-    )
+    credential_file = str(os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "")).strip() or "keys/credentials.json"
+
+    if os.path.isfile(credential_file):
+        creds = Credentials.from_service_account_file(
+            credential_file,
+            scopes=scopes,
+        )
+    else:
+        creds, _ = google.auth.default(scopes=scopes)
 
     return gspread.authorize(creds)
 
