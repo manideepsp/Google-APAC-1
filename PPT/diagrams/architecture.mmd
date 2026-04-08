@@ -1,0 +1,37 @@
+flowchart TB
+    subgraph Client_Layer
+      A1[Browser UI\nAuth + Goal Chat + Tabs]
+    end
+
+    subgraph Application_Layer
+      A2[FastAPI App\nmain.py + routes.py]
+      A3[ADK Workflow Runner]
+      A4[Ops Agent\n6 MCP-backed tools]
+    end
+
+    subgraph Intelligence_Layer
+      A5[Vertex AI Gemini 2.5 Flash]
+      A6[Research, Planning, Execution, Reflection]
+    end
+
+    subgraph Data_Integration_Layer
+      A7[(SQLite tasks.db\nWAL + indexes)]
+      A8[YouTube gRPC 50051]
+      A9[Sheets gRPC 50052]
+      A10[Tavily Search API]
+      A11[(Google Sheets)]
+      A12[(AlloyDB AI - Phase 2)]
+    end
+
+    A1 --> A2
+    A2 --> A3
+    A2 --> A4
+    A3 --> A6
+    A6 --> A5
+    A4 --> A8
+    A4 --> A9
+    A4 --> A10
+    A2 --> A7
+    A9 --> A11
+    A7 -. Replication/RAG pipeline .-> A12
+    A2 -. Read-heavy analytics migration .-> A12

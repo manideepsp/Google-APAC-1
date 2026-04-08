@@ -1,0 +1,29 @@
+flowchart LR
+    subgraph Screen_1_Login
+      L1[Email]
+      L2[Password]
+      L3[Session Token]
+    end
+
+    subgraph Screen_2_Strategy_Console
+      G1[Goal Builder Chat]
+      G2[Goal Params Grid]
+      G3[Generate Strategy]
+      G4[Analyze]
+    end
+
+    subgraph Screen_3_Workspace_Tabs
+      T1[Tasks Table\nStatus + Live + Trace]
+      T2[Analytics KPIs + Insights]
+      T3[Ideas with Sources]
+      T4[Archive + Run History]
+    end
+
+    L3 --> G1
+    G1 --> G2
+    G2 --> G3
+    G3 --> T1
+    G4 --> T1
+    T1 --> T2
+    T1 --> T3
+    T1 --> T4

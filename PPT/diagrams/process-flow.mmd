@@ -1,0 +1,23 @@
+flowchart LR
+    U([User]) --> UI[FastAPI UI\nGoal Builder + Task Board]
+    UI --> API[/FastAPI API Routes/]
+
+    API --> R[Research Agent\nADK]
+    R --> YT[YouTube gRPC Service]
+    R --> WS[Tavily Web Search]
+    R --> KPI[KPI Builder]
+
+    R --> P[Planning Agent\nADK JSON Tasks]
+    P --> E[Execution Agent\nPersist + Sync]
+    E --> DB[(SQLite WAL)]
+    E --> SS[Sheets Sync Service]
+    SS --> GS[(Google Sheets)]
+
+    UI --> T[Task Updates]
+    T --> API
+    API --> DB
+
+    UI --> AN[Analyze Trigger]
+    AN --> REF[Reflection Agent\nADK]
+    REF --> DB
+    REF --> P
