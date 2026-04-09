@@ -24,6 +24,8 @@ const state = {
   runs: [],
   modifications: [],
   lastError: "",
+  isGenerating: false,
+  isAnalyzing: false,
 };
 
 const els = {
@@ -179,6 +181,12 @@ function showProcessing(lines) {
 
 function hideProcessing() {
   els.processingOverlay.classList.add("hidden");
+}
+
+function syncActionButtonState() {
+  const locked = state.isGenerating || state.isAnalyzing;
+  els.btnGenerateFromParams.disabled = locked;
+  els.btnAnalyze.disabled = locked;
 }
 
 function normalizeGoalParams(goalParams) {
@@ -412,6 +420,10 @@ async function assistantTurn(message, history) {
 }
 
 async function generateStrategyFromParams() {
+  if (state.isGenerating || state.isAnalyzing) {
+    return;
+  }
+
   const goalParams = normalizeGoalParams(state.goalParams);
   const goal = goalTextFromParams(goalParams);
   const channelId = selectedChannelOrGoalChannel() || null;
@@ -423,6 +435,8 @@ async function generateStrategyFromParams() {
   }
 
   setChatState("Generating");
+  state.isGenerating = true;
+  syncActionButtonState();
   showProcessing([
     "Refining parameters...",
     "Fetching trends...",
@@ -454,10 +468,16 @@ async function generateStrategyFromParams() {
     showToast("error", "Generate failed", state.lastError);
   } finally {
     hideProcessing();
+    state.isGenerating = false;
+    syncActionButtonState();
   }
 }
 
 async function analyzeStrategy() {
+  if (state.isGenerating || state.isAnalyzing) {
+    return;
+  }
+
   const goalParams = normalizeGoalParams(state.goalParams);
   const channelId = selectedChannelOrGoalChannel() || null;
 
@@ -468,6 +488,8 @@ async function analyzeStrategy() {
   }
 
   setChatState("Analyzing");
+  state.isAnalyzing = true;
+  syncActionButtonState();
   showProcessing([
     "Loading active workspace tasks...",
     "Applying reflection model...",
@@ -496,6 +518,8 @@ async function analyzeStrategy() {
     showToast("error", "Analyze failed", state.lastError);
   } finally {
     hideProcessing();
+    state.isAnalyzing = false;
+    syncActionButtonState();
   }
 }
 
@@ -696,6 +720,7 @@ async function bootstrap() {
   }
 
   renderAll();
+  syncActionButtonState();
 }
 
 bootstrap();
