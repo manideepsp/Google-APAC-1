@@ -214,14 +214,15 @@ Used for:
 ## ⚙️ 8) Local Setup Instructions
 
 ### 8.1 Prerequisites
-- Python **3.11+**
+- Python **3.11.x or newer (project constraint: >=3.11,<4.0)**
 - Poetry
 - Google Cloud credentials (ADC or service-account JSON)
 - API keys as needed (YouTube Data API, Tavily)
 
 ### 8.2 Install
 ```bash
-cd /home/runner/work/Google-APAC-1/Google-APAC-1
+git clone https://github.com/manideepsp/Google-APAC-1.git
+cd Google-APAC-1
 poetry install
 ```
 
