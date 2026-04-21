@@ -1,141 +1,376 @@
-# Google-APAC-1
+# 🚀 Google-APAC-1 — AI YouTube Strategy Console
 
-## Vertex AI Setup (Gemini 2.5 Flash)
+An AI strategy console that turns a creator’s goal into a **practical, trackable, and improvable execution workflow**.
 
-The project uses Vertex AI for Gemini model calls with `gemini-2.5-flash`.
+It combines:
+- 🤖 **Google ADK agents** for research/planning/execution/reflection
+- 🧰 **Operational tools** exposed through an MCP server
+- 🗂️ **SQLite** for active task operations and product state
+- 🧠 **AlloyDB (PostgreSQL)** for generation memory and relevance retrieval
+- 📊 **Google Sheets sync** for operational visibility
+- 🎬 **YouTube + Web intelligence** for strategy decisions
 
-The app auto-detects Vertex project/auth in this order:
+---
 
-1. `GOOGLE_CLOUD_PROJECT` or `VERTEX_PROJECT_ID`
-2. `GOOGLE_APPLICATION_CREDENTIALS`
-3. `keys/credentials.json` in this repo (uses `project_id` from the file)
+## 🎯 1) Project Goal
 
-Set environment variables:
+Convert a creator’s high-level YouTube goal into:
+1. **Goal parameters** (Goal, Audience, Budget, Timeline, Content Type, Channel ID)
+2. **Research-backed strategic insights**
+3. **Actionable task plans** (priority + day)
+4. **Executable task state** (TODO / IN_PROGRESS / COMPLETED / OUT_OF_SCOPE)
+5. **Continuous improvement loop** via reflection and KPI feedback
 
-```powershell
-$env:GOOGLE_CLOUD_PROJECT="YOUR_PROJECT_ID"
-$env:GOOGLE_CLOUD_LOCATION="us-central1"
+---
+
+## ✨ 2) Key Features (Hierarchical)
+
+### 2.1 User & Workspace
+- 🔐 Email/password auth with session tokens
+- 🧾 Forgot/reset password flow
+- 📺 Channel ID parsing and channel-scoped workspaces
+
+### 2.2 Goal Building
+- 💬 Chat-assisted goal drafting (`/goal/assistant`)
+- 🧩 Editable goal parameter table in UI
+- ✅ Readiness gating before generation
+
+### 2.3 AI Strategy Workflow
+- 🔎 Research agent gathers trends, channel analytics, and web insights
+- 🧠 Planning agent generates tasks from goal + research + memory
+- ⚙️ Execution agent persists tasks and syncs Sheets
+- 🔁 Reflection agent re-generates tasks from performance signals
+
+### 2.4 Task Operations
+- 📝 Update task fields (priority/status/live)
+- 📦 Move between active tasks and archive
+- 🕓 Modification trace/history
+
+### 2.5 Analytics & Insights UI
+- 📈 KPI cards (avg/max views, trends, keywords)
+- 📚 Run history and archived runs
+- 💡 Ideas panel from web insights
+
+### 2.6 Tooling Surfaces
+- 🔌 MCP server with 6 tools
+- 🛠️ ADK Ops Agent wrapping the same 6 tools
+
+---
+
+## 🧱 3) Architecture Overview
+
+```mermaid
+flowchart TD
+    U[👤 User] --> UI[🖥️ FastAPI-served UI]
+    UI --> API[⚡ FastAPI API Router]
+
+    API --> GW[🤖 ADK Workflow Runner]
+    GW --> RA[Research Agent]
+    GW --> PA[Planning Agent]
+    GW --> EA[Execution Agent]
+    API --> RF[Reflection Agent]
+
+    RA --> YT[🎬 YouTube gRPC Service]
+    RA --> WS[🌐 Tavily Web Search]
+    RA --> KP[📊 KPI Builder]
+
+    PA --> ALR[🧠 AlloyDB Related Memory Fetch]
+    PA --> ADK1[Gemini via Vertex AI]
+    PA --> ALW[🧠 AlloyDB Generation Memory Write]
+
+    EA --> SQ[🗂️ SQLite Tasks]
+    EA --> SS[📊 Sheets Sync Service]
+    RF --> SQ
+    RF --> YT
+    RF --> ADK2[Gemini via Vertex AI]
+    RF --> ALW
+
+    API --> SQ
+    API --> ALR
+    API --> UI
 ```
 
-If you use a service-account key file:
+---
 
-```powershell
-$env:GOOGLE_APPLICATION_CREDENTIALS="E:\GITHUB\APAC\Google-APAC-1\keys\credentials.json"
+## 🤖 4) Agents Included and Role of Each
+
+### 4.1 Workflow Agents (`app/agents/*`)
+1. **Research Agent** (`research_agent.py`)
+   - Pulls trending titles/topics from YouTube gRPC
+   - Fetches multi-channel analytics
+   - Runs goal-driven web search
+   - Builds KPI payload and creates ADK research summary
+
+2. **Planning Agent** (`planning_agent.py`)
+   - Fetches related prior tasks from AlloyDB
+   - Calls ADK to generate JSON tasks
+   - Stores generation memory back to AlloyDB
+
+3. **Execution Agent** (`execution_agent.py`)
+   - Persists generated tasks into SQLite
+   - Triggers SQLite → Sheets sync
+
+4. **Reflection Agent** (`reflection_agent.py`)
+   - Reads current performance/task context
+   - Re-generates improved tasks using ADK
+   - Replaces active tasks, syncs Sheets, records memory in AlloyDB
+
+### 4.2 Operations Agent
+5. **ADK Ops Agent** (`app/adk/ops_agent.py`)
+   - Operational agent bound to the same 6 MCP-aligned tools
+   - Exposed via `/ops/adk/agent` for metadata/verification
+
+---
+
+## 🧰 5) Tools Included and Role of Each
+
+MCP server (`app/mcp_server/server.py`) exposes **6 tools**:
+
+1. `tool_youtube_data` → trending titles/topics
+2. `tool_youtube_analytics(channel_id)` → channel growth + top videos
+3. `tool_web_search(query, max_results)` → Tavily web intelligence
+4. `tool_sqlite_read(user_id)` → user active tasks from SQLite
+5. `tool_sqlite_update(user_id, task_uuid, status, live)` → task lifecycle update
+6. `tool_sheets_sync(user_id)` → sync user tasks to Google Sheets
+
+---
+
+## 🔗 6) How Agents and Tools Are Connected
+
+```mermaid
+flowchart LR
+    subgraph Agents
+      RA[Research]
+      PA[Planning]
+      EA[Execution]
+      RF[Reflection]
+      OA[Ops Agent]
+    end
+
+    subgraph Tools
+      T1[YouTube Data]
+      T2[YouTube Analytics]
+      T3[Web Search]
+      T4[SQLite Read]
+      T5[SQLite Update]
+      T6[Sheets Sync]
+    end
+
+    RA --> T1
+    RA --> T2
+    RA --> T3
+
+    EA --> T4
+    EA --> T6
+
+    RF --> T2
+    RF --> T4
+    RF --> T6
+
+    OA --> T1
+    OA --> T2
+    OA --> T3
+    OA --> T4
+    OA --> T5
+    OA --> T6
+
+    PA --> AL[AlloyDB Memory Fetch/Write]
 ```
 
-Authenticate with Application Default Credentials:
+---
 
-```powershell
+## 🗃️ 7) Database Design: AlloyDB + Other DBs
+
+### 7.1 SQLite (Operational Source of Truth)
+Used for:
+- users, sessions, password resets
+- active tasks and archived task history
+- strategy runs and research snapshots
+- task modification logs
+
+Why:
+- fast local operations
+- simple deployment footprint
+- channel/user scoped task lifecycle operations
+
+### 7.2 AlloyDB (Generation Memory Layer)
+Used for:
+- storing generation task memory (`generation_task_memory`)
+- relevance search for related historical tasks
+- FTS + trigram + recency scoring for retrieval
+
+How it helps:
+- continuity across generations
+- duplicate reduction
+- better context-aware planning/reflection
+
+### 7.3 Google Sheets (Operational Mirror)
+Used for:
+- mirrored view of active tasks
+- simple external visibility/reporting
+
+---
+
+## ⚙️ 8) Local Setup Instructions
+
+### 8.1 Prerequisites
+- Python **3.11+ (project constraint: >=3.11,<4.0; currently covers 3.11, 3.12, 3.13)**
+- Poetry
+- Google Cloud credentials (ADC or service-account JSON)
+- API keys as needed (YouTube Data API, Tavily)
+
+### 8.2 Install
+```bash
+git clone https://github.com/manideepsp/Google-APAC-1.git
+cd Google-APAC-1
+poetry install
+```
+
+### 8.3 Configure environment
+Set minimum required variables:
+
+```bash
+# Vertex AI / Gemini
+export GOOGLE_CLOUD_PROJECT="<your-project-id>"
+export GOOGLE_CLOUD_LOCATION="us-central1"
+
+# Optional alias names supported by app
+export VERTEX_PROJECT_ID="<your-project-id>"
+export VERTEX_LOCATION="us-central1"
+
+# Optional, if using service-account file directly
+export GOOGLE_APPLICATION_CREDENTIALS="/absolute/path/to/credentials.json"
+
+# Required for YouTube fetches
+export YOUTUBE_API_KEY="<your-youtube-api-key>"
+
+# Required for web search
+export TAVILY_API_KEY="<your-tavily-api-key>"
+
+# Optional AlloyDB memory
+export ALLOYDB_DSN="postgresql://USER:PASSWORD@HOST:5432/DBNAME?sslmode=require"
+# or
+export ALLOYDB_URI="postgresql://USER:PASSWORD@HOST:5432/DBNAME?sslmode=require"
+
+# Optional gRPC ports/hosts
+export YOUTUBE_GRPC_HOST="localhost"
+export YOUTUBE_GRPC_PORT="50051"
+export SHEETS_GRPC_HOST="localhost"
+export SHEETS_GRPC_PORT="50052"
+```
+
+Authenticate ADC if needed:
+```bash
 gcloud auth application-default login
 ```
 
-Optional aliases supported by app code:
-
-- `VERTEX_PROJECT_ID`
-- `VERTEX_LOCATION`
-
-Note: API-key LLM auth is not used by this app path anymore; Vertex credentials are required.
-
-## AlloyDB Task Memory (Generation-Aware)
-
-The app can store generated tasks in AlloyDB and retrieve relevant historical tasks before generating the next set.
-
-Set one of these variables to enable AlloyDB memory:
-
-```powershell
-$env:ALLOYDB_DSN="postgresql://USER:PASSWORD@HOST:5432/DBNAME?sslmode=require"
-# or
-$env:ALLOYDB_URI="postgresql://USER:PASSWORD@HOST:5432/DBNAME?sslmode=require"
-```
-
-Behavior:
-
-- Each planning/reflection generation stores tasks with metadata (`goal`, `goal_params`, `run_id`, `channel_id`, `generation_number`).
-- Before each generation, related tasks are fetched from AlloyDB using full-text + trigram relevance.
-- Retrieved memory is injected into generation prompts to improve continuity and reduce duplicates.
-
-If AlloyDB is not configured, workflow continues with existing SQLite behavior.
-
-## Run Entire App With One Command
-
-Start all required services in one terminal (YouTube gRPC, Sheets gRPC, and FastAPI UI/API):
-
-```powershell
+### 8.4 Run full app stack
+```bash
 poetry run python -m app.startup
 ```
+This starts:
+- YouTube gRPC service
+- Sheets gRPC service
+- FastAPI UI/API server
 
-After startup:
+Access:
+- UI: `http://127.0.0.1:8000/`
+- Health: `http://127.0.0.1:8000/health`
 
-- UI: http://127.0.0.1:8000/
-- Health: http://127.0.0.1:8000/health
+---
 
-Press `Ctrl+C` in that same terminal to stop everything together.
+## 🧪 9) Usage Flow (End-to-End)
 
-## MCP Server (6 Tools)
+1. Register/Login from UI
+2. Add/parse Channel ID
+3. Build goal params through chat assistant
+4. Generate strategy (`/goal`)
+5. Review tasks in Workspace
+6. Edit/move tasks (trace logged)
+7. Run Analyze (`/analyze`) for reflection-driven updates
+8. Review Ideas/Analytics/Archive tabs
 
-A dedicated MCP server is available at `app/mcp_server/server.py`.
+---
 
-Run with stdio transport:
+## 🌐 10) API Highlights
 
-```powershell
-$env:MCP_TRANSPORT='stdio'
+- `POST /auth/register`
+- `POST /auth/login`
+- `POST /auth/logout`
+- `GET /auth/me`
+- `POST /goal/assistant`
+- `POST /goal`
+- `POST /analyze`
+- `POST /task/update`
+- `POST /task/move`
+- `GET /tasks`
+- `GET /tasks/history`
+- `GET /tasks/modifications`
+- `GET /runs`
+- `GET /archive`
+- `GET /research/latest`
+- `GET /ops/adk/agent`
+
+---
+
+## 🛰️ 11) MCP Server Usage
+
+Run MCP server:
+```bash
+export MCP_TRANSPORT=stdio
 poetry run python -m app.mcp_server.server
 ```
 
-Optional transports supported by the server runtime:
-
+Supported transports:
+- `stdio`
 - `sse`
 - `streamable-http`
 
-Tool mapping:
+---
 
-1. `tool_youtube_data`: YouTube trending data (via existing gRPC YouTube service client)
-2. `tool_youtube_analytics`: channel analytics (via existing gRPC YouTube service client)
-3. `tool_web_search`: Tavily web search
-4. `tool_sqlite_read`: user-scoped active task read from SQLite
-5. `tool_sqlite_update`: user-scoped task lifecycle update in SQLite
-6. `tool_sheets_sync`: SQLite-to-Sheets sync (via existing gRPC Sheets service client)
+## 🔁 12) CI/CD Pipeline to Google Cloud Run
 
-## Google ADK Ops Agent
+> The deployment architecture is designed as **GitHub Repo → Cloud Build Trigger → Artifact Registry → Cloud Run**.
 
-An ADK-based operations agent wrapper is available at `app/adk/ops_agent.py`.
-It reuses the same six operational tools via ADK `FunctionTool` bindings.
-
-App-level integration endpoint (authenticated):
-
-- `GET /ops/adk/agent` returns agent name, model, and registered tool count.
-
-Quick smoke test:
-
-```powershell
-poetry run python -c "from app.adk.ops_agent import build_ops_agent; a=build_ops_agent(); print(a.name)"
+```mermaid
+flowchart LR
+    GH[📦 GitHub Repository] --> TR[⚡ Cloud Build Trigger]
+    TR --> CB[🏗️ Cloud Build]
+    CB --> AR[📚 Artifact Registry]
+    AR --> CR[☁️ Cloud Run Service]
+    CR --> U[👤 Users]
 ```
 
-## ADK Migration Status
+### Pipeline intent
+1. Push/merge to configured branch in GitHub
+2. Cloud Build trigger starts build
+3. Docker image built from repo `Dockerfile`
+4. Image pushed to Artifact Registry
+5. Cloud Run deploys new revision
+6. Traffic routed to latest healthy revision
 
-Core workflow agents execute with Google ADK across the end-to-end goal flow:
+---
 
-1. research agent: ADK synthesis for strategy insights
-2. planning agent: ADK JSON task generation
-3. execution agent: ADK tool-calling for task persistence + sheets sync
-4. reflection agent: ADK JSON task regeneration
+## 📁 13) Important Paths
 
-If ADK execution fails, the API now returns an explicit ADK error response so failures are visible immediately.
+- `app/main.py` — FastAPI app entry
+- `app/startup.py` — launches all runtime services
+- `app/api/routes.py` — HTTP API contract
+- `app/agents/*` — workflow agents
+- `app/adk/*` — ADK workflow + ops agent
+- `app/mcp_server/*` — MCP server and tools
+- `app/db/sqlite.py` — SQLite operational persistence
+- `app/db/alloydb.py` — AlloyDB memory and retrieval
+- `app/services/*` — YouTube/Sheets/web integrations
+- `ui/*` — frontend application
+- `Dockerfile` — container runtime for Cloud Run
 
-`/goal` now runs ADK workflow execution by default.
+---
 
-## AlloyDB AI Feasibility (Current Architecture)
+## ✅ 14) What This Repository Demonstrates
 
-AlloyDB AI is feasible, but should be a phased migration rather than a direct replacement of the current SQLite + Sheets flow.
-
-- Good fit when task/history volume and concurrent users increase significantly.
-- Recommended target use: long-term analytics, semantic search over task/research history, and SQL + vector hybrid retrieval.
-- Migration complexity: medium.
-- Immediate blockers: networked DB operations, schema migration scripts, connection pooling, IAM/service identity setup, and cost baseline.
-
-Suggested path:
-
-1. Keep SQLite as source of truth for active execution loop.
-2. Replicate finalized task/research artifacts into AlloyDB AI for analytics/RAG.
-3. Move selected read-heavy endpoints to AlloyDB AI.
-4. Retire SQLite only after operational parity and cost/performance validation.
+- Full-stack AI strategy product pattern
+- Agentic orchestration with ADK
+- Tool-first operations via MCP
+- Hybrid data strategy: operational DB + memory DB
+- Practical deployment path from GitHub to Cloud Run
