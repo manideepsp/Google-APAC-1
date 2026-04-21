@@ -214,7 +214,7 @@ Used for:
 ## ⚙️ 8) Local Setup Instructions
 
 ### 8.1 Prerequisites
-- Python **3.11.x or newer (project constraint: >=3.11,<4.0)**
+- Python **3.11+ (project constraint: >=3.11,<4.0; currently covers 3.11, 3.12, 3.13)**
 - Poetry
 - Google Cloud credentials (ADC or service-account JSON)
 - API keys as needed (YouTube Data API, Tavily)
@@ -230,7 +230,7 @@ poetry install
 Set minimum required variables:
 
 ```bash
-# Vertex / Gemini via Vertex AI
+# Vertex AI / Gemini
 export GOOGLE_CLOUD_PROJECT="<your-project-id>"
 export GOOGLE_CLOUD_LOCATION="us-central1"
 
